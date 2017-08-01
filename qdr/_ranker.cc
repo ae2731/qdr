@@ -126,17 +126,38 @@ QDR::~QDR() {}
 
 double QDR::get_idf(const std::string& word)
 {
-    /// Get log(total docs / doc count for word) == IDF
+
+    double idf;
+    double max_idf;
+
     double doc_freq;
     counts_t::const_iterator got = counts.find(word);
     if (got != counts.end())
     {
-        // this word is in the corpus
         doc_freq = got->second.second;
     }
     else
         doc_freq = 1.0;
-    return log(double(total_docs) / doc_freq);
+    double idf_r1 = double(total_docs) - doc_freq + 0.5;
+    double idf_r2 = doc_freq + 0.5;
+    if (idf_r1 > (2 * idf_r2))
+    {
+        idf = log(idf_r1 / idf_r2);
+    }else{
+        idf = log(2);
+    }
+
+    double max_idf_r1 = double(total_docs) - 1. + 0.5;
+    double max_idf_r2 = 1. + 0.5;
+    if (max_idf_r1 > (2 * max_idf_r2))
+    {
+        max_idf = log(max_idf_r1 / max_idf_r2);
+    }else{
+        max_idf = log(2);
+    }
+
+
+    return idf / max_idf;
 }
 
 scores_t QDR::score(doc_t& document, doc_t& query)
